@@ -1,3 +1,5 @@
+#算法参考:https://ruwix.com/the-rubiks-cube/how-to-solve-the-rubiks-cube-beginners-method/
+
 from random import randint #用以随机打乱魔方
 import sys #使用sleep ()方法做暂停
 from vpython import * # For 3D
@@ -19,19 +21,18 @@ faces = {'F': (color.red, vector(0, 0, 1)),
 		 'L': (color.blue, vector(-1, 0, 0)),
 		 'D': (color.white, vector(0, -1, 0)),
 		 'R': (color.green, vector(1, 0, 0))}
-
-# 每个面逐一上色
+# 坐标系z轴方向从纸面指向我们，x轴从左到右，y轴从下到上
+# 每个面逐一上色共6个9宫格，54个sticker
 stickers = []
 for face_color, axis in faces.values():
 	for x in (-1, 0, 1):
 		for y in (-1, 0, 1):
-
-			#初始向上，开始转动
-
-			sticker = box(color=face_color, pos=vector(x, y, 1.5),
-						  length=0.98, height=0.98, width=0.05)
-			cos_angle = dot(vector(0, 0, 1), axis)
-			pivot = (cross(vector(0, 0, 1), axis) if cos_angle == 0 else vector(1, 0, 0))
+			sticker = box(color=face_color, pos=vector(x, y, 1.5),length=0.98, height=0.98, width=0.05)
+			cos_angle = dot(vector(0, 0, 1), axis)#两垂直向量点积为0
+			if cos_angle == 0:#两垂直单位向量叉积方向为右手法则
+				pivot = cross(vector(0, 0, 1), axis)  
+			else:
+				pivot=vector(1, 0, 0) 
 			sticker.rotate(angle=acos(cos_angle), axis=pivot, origin=vector(0, 0, 0))
 			stickers.append(sticker)
 
@@ -71,10 +72,7 @@ b   = 'o'
 r   = 'g' 
 l   = 'b' 
 
-
-
 # 棱块两面着色
-
 uf = {'u': 'y', 'd': '', 'f': 'r', 'b': '', 'r': '', 'l': ''} 
 ur = {'u': 'y', 'd': '', 'f': '', 'b': '', 'r': 'g', 'l': ''} 
 ub = {'u': 'y', 'd': '', 'f': '', 'b': 'o', 'r': '', 'l': ''} 
@@ -87,6 +85,7 @@ fr = {'u': '', 'd': '', 'f': 'r', 'b': '', 'r': 'g', 'l': ''}
 fl = {'u': '', 'd': '', 'f': 'r', 'b': '', 'r': '', 'l': 'b'} 
 br = {'u': '', 'd': '', 'f': '', 'b': 'o', 'r': 'g', 'l': ''} 
 bl = {'u': '', 'd': '', 'f': '', 'b': 'o', 'r': '', 'l': 'b'} 
+
 # 角块三面着色
 ufr = {'u': 'y', 'd': '', 'f': 'r','b': '', 'r': 'g', 'l': ''} 
 ufl = {'u': 'y', 'd': '', 'f': 'r', 'b': '', 'r': '', 'l': 'b'} 
@@ -144,7 +143,7 @@ def move(face, show=1):
 		rotate3D("U'")
 
 
-	if face == "D": # 低面顺时针转
+	if face == "D": # 底面顺时针转
 		dbr['d'], dbr['r'], dbr['b'], dbl['d'], dbl['l'], dbl['b'], dfl['d'], dfl['l'], dfl['f'], dfr['d'], dfr['r'], dfr['f'],  = \
 		dfr['d'], dfr['f'], dfr['r'], dbr['d'], dbr['b'], dbr['r'], dbl['d'], dbl['b'], dbl['l'], dfl['d'], dfl['f'], dfl['l']
 
@@ -153,7 +152,7 @@ def move(face, show=1):
 		rotate3D("D")
 
 
-	if face == "D'": # 低面逆时针转
+	if face == "D'": # 底面逆时针转
 		dfr['d'], dfr['f'], dfr['r'], dbr['d'], dbr['b'], dbr['r'], dbl['d'], dbl['b'], dbl['l'], dfl['d'], dfl['f'], dfl['l'],  = \
 		dbr['d'], dbr['r'], dbr['b'], dbl['d'], dbl['l'], dbl['b'], dfl['d'], dfl['l'], dfl['f'], dfr['d'], dfr['r'], dfr['f']
 
@@ -167,7 +166,7 @@ def move(face, show=1):
 		dfl['f'], dfl['d'], dfl['l'], ufl['f'], ufl['u'], ufl['l'], ubl['b'], ubl['u'], ubl['l'], dbl['b'], dbl['d'], dbl['l']
 
 		ul['u'], ul['l'], bl['b'], bl['l'], dl['d'], dl['l'], fl['f'], fl['l'],  = \
-		fl['f'], fl['l'], ul['u'], ul['l'], bl['b'], bl['l'], dl['d'], dl['l'] #Aletes
+		fl['f'], fl['l'], ul['u'], ul['l'], bl['b'], bl['l'], dl['d'], dl['l'] 
 		rotate3D("L'")
 
 
@@ -228,7 +227,7 @@ def melanger(nbrDeMoves=25, show=1): #随机打乱方法
 		if show == 1:
 			sys.stdout.write(str(moveList[aleatoire]).upper()+ " ")
 	if show == 1:
-		print("\nCube Mixing !")
+		print("\n随机打乱魔方!")
 
 
 
@@ -250,31 +249,34 @@ def printCube(): #输出所有面的颜色
 def turnCube(show=1): #从右向左中轴转，魔方公式中的Y
 	global d, u, f, b, r, l
 
-	# U
+	# 顶部角块各面的映射变化
 	ufr['u'], ufr['f'], ufr['r'], ubr['u'], ubr['b'], ubr['r'], ubl['u'], ubl['b'], ubl['l'], ufl['u'], ufl['f'], ufl['l'],  = \
 	ubr['u'], ubr['r'], ubr['b'], ubl['u'], ubl['l'], ubl['b'], ufl['u'], ufl['l'], ufl['f'], ufr['u'], ufr['r'], ufr['f']
-	
+
+	# 顶部棱块各面的映射变化
 	ur['u'], ur['r'], uf['u'], uf['f'], ul['u'], ul['l'], ub['u'], ub['b'],  = \
 	ub['u'], ub['b'], ur['u'], ur['r'], uf['u'], uf['f'], ul['u'], ul['l']
 
-	# D'
+	# 底部棱块各面的映射变化
 	dfr['d'], dfr['f'], dfr['r'], dbr['d'], dbr['b'], dbr['r'], dbl['d'], dbl['b'], dbl['l'], dfl['d'], dfl['f'], dfl['l'],  = \
 	dbr['d'], dbr['r'], dbr['b'], dbl['d'], dbl['l'], dbl['b'], dfl['d'], dfl['l'], dfl['f'], dfr['d'], dfr['r'], dfr['f']
 
+	# 底部棱块各面的映射变化
 	df['d'], df['f'], dr['d'], dr['r'], db['d'], db['b'], dl['d'], dl['l'],  = \
 	dr['d'], dr['r'], db['d'], db['b'], dl['d'], dl['l'], df['d'], df['f']
 
-	# E'
+	# 中间棱块的映射变化
 	fl['f'], fl['l'], fr['f'], fr['r'], br['b'], br['r'], bl['b'], bl['l']  = \
 	fr['r'], fr['f'], br['r'], br['b'], bl['l'], bl['b'], fl['l'], fl['f']
 
+	# 中心块的映射变化
 	f, r, b, l = \
 	r, b, l, f
 
 	rotate3D("E")
 
 	if show == 1:
-		print("Turn the cube")
+		print("轴转")
 
 
 
@@ -316,8 +318,8 @@ def resetCube():
 def solveWhiteCross(show=1): #魔方通用解法第一步：底部十字
 
 	if show == 1:
-		print("\nConstruction of the white cross :\n")
-	global d, u, f, b, r, l, uf, ur, ub, ul, df, dr, db, dl, fr, fl, br, bl, ufr, ufl, ubr, ubl, dfr, dfl, dbr, dbl#６中心块，１２棱块，８角块
+		print("\n构建底面白十字:\n")
+	global d, u, f, b, r, l, uf, ur, ub, ul, df, dr, db, dl, fr, fl, br, bl, ufr, ufl, ubr, ubl, dfr, dfl, dbr, dbl#6中心块，12棱块，8角块
 	liste = ['r', 'g', 'o', 'b']#颜色
 
 	for i in liste:
@@ -462,7 +464,7 @@ def solveWhiteCross(show=1): #魔方通用解法第一步：底部十字
 def solveWhiteCorner(show=1): #魔方通用解法第二步：放置白色角块
 
 	if show == 1:
-		print("\nPlacement of white corners :\n")
+		print("\n处理白色角块:\n")
 	global d, u, f, b, r, l, uf, ur, ub, ul, df, dr, db, dl, fr, fl, br, bl, ufr, ufl, ubr, ubl, dfr, dfl, dbr, dbl
 	liste = ["wrg", "wgo", "wob", "wbr"] #  'wrg' 表示白红绿，以此类推
 
@@ -573,10 +575,10 @@ def isFinish():
 
 
 
-def solve2ndCrown(show=1): #魔方通用解法第三步：构建第二个皇冠
+def solve2ndCrown(show=1): #魔方通用解法第三步：构建二层皇冠图
 
 	if show == 1:
-		print("\nConstruction of the second crown:\n")
+		print("\n构建下面两层:\n")
 	global uf, ur, ub, ul, df, dr, db, dl, fr, fl, br, bl#12棱块
 	liste = ['rg', 'go', 'ob', 'br'] #  'rg' 表示红绿，以此类推
 
@@ -721,7 +723,7 @@ def solve2ndCrown(show=1): #魔方通用解法第三步：构建第二个皇冠
 			move("R", show)
 
 		if fr['f'] is i[0] and fr['r'] in i and show == 1:
-			print("Well put edge!")
+			print("棱对正")
 
 		turnCube(show)
 
@@ -729,7 +731,7 @@ def solve2ndCrown(show=1): #魔方通用解法第三步：构建第二个皇冠
 
 def solveYellowCross(show=1): #魔方通用解法第四步：构建黄十字
 	if show == 1:
-		print("\nConstruction of the yellow cross :\n")
+		print("\n构建顶面黄十字:\n")
 
 	global uf, ur, ub, ul
 
@@ -865,9 +867,9 @@ def solveYellowCross(show=1): #魔方通用解法第四步：构建黄十字
 
 def solveFinal(show=1): #魔方公式最后一步：放置好黄色角块
 	if show == 1:
-		print("\nPlacement of yellow corners :\n")
+		print("\n放置好黄色角块:\n")
 
-	while 1: # Boucle
+	while 1: 
 
 		if  ('r' in ufr.values() and 'g' in ufr.values()) and \
 			('b' in ufl.values() and 'r' in ufl.values()) and \
@@ -970,23 +972,23 @@ def solveFinal(show=1): #魔方公式最后一步：放置好黄色角块
 
 
 ##### 打乱魔方 #####
-print("Mixing the cube :\n")
+print("打乱魔方:\n")
 melanger() 
 printCube() 
-print("Mixing the cube ends !\n")
+print("随机打乱魔方完成!\n")
 sleep(3) 
 
 
 ##### 求解基本步骤 #####
 
 if isFinish(): 
-	print("Finished" + str(moveNbr) + " movements !")
+	print("执行完成" + str(moveNbr) + " 步!")
 	quit()
 
 solveWhiteCross() # 白色十字
 
 if isFinish(): 
-	print("Finished" + str(moveNbr) + " movements !")
+	print("执行完成" + str(moveNbr) + " 步!")
 	quit()
 
 solveWhiteCorner() # 白色角块
@@ -994,22 +996,22 @@ solveWhiteCorner() # 白色角块
 printCube() 
 
 if isFinish(): 
-	print("Finished "  + str(moveNbr) + " movements !")
+	print("执行完成" + str(moveNbr) + " 步!")
 	quit()
 
-solve2ndCrown() # 第二层
+solve2ndCrown() # 底部二层
 
 printCube() 
 
 if isFinish(): 
-	print("Finished " + str(moveNbr) + " movements !")
+	print("执行完成" + str(moveNbr) + " 步!")
 	quit()
 
 solveYellowCross() # 黄十字
 
 printCube() 
 if isFinish(): 
-	print("Finished " + str(moveNbr) + " movements !")
+	print("执行完成" + str(moveNbr) + " 步!")
 	quit()
 
 solveFinal() # 最后一层
@@ -1017,7 +1019,7 @@ solveFinal() # 最后一层
 printCube() 
 
 if isFinish(): 
-	print("Finished " + str(moveNbr) + " movements !")
+	print("执行完成" + str(moveNbr) + " 步!")
 	quit()
 
 printCube() 

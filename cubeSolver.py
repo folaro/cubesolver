@@ -1,4 +1,4 @@
-import random #用以随机打乱魔方
+from random import randint #用以随机打乱魔方
 import sys #使用sleep ()方法做暂停
 from vpython import * # For 3D
 
@@ -13,12 +13,12 @@ fps = 24 # 一秒24帧
 # l = Left 
 
 # 面与向量的关系
-faces = {'F': (color.red, (0, 0, 1)),
-		 'B': (color.orange, (0, 0, -1)),
-		 'U': (color.yellow, (0, 1, 0)),
-		 'L': (color.blue, (-1, 0, 0)),
-		 'D': (color.white, (0, -1, 0)),
-		 'R': (color.green, (1, 0, 0))}
+faces = {'F': (color.red, vector(0, 0, 1)),
+		 'B': (color.orange, vector(0, 0, -1)),
+		 'U': (color.yellow, vector(0, 1, 0)),
+		 'L': (color.blue, vector(-1, 0, 0)),
+		 'D': (color.white, vector(0, -1, 0)),
+		 'R': (color.green, vector(1, 0, 0))}
 
 # 每个面逐一上色
 stickers = []
@@ -28,11 +28,11 @@ for face_color, axis in faces.values():
 
 			#初始向上，开始转动
 
-			sticker = box(color=face_color, pos=(x, y, 1.5),
+			sticker = box(color=face_color, pos=vector(x, y, 1.5),
 						  length=0.98, height=0.98, width=0.05)
-			cos_angle = dot((0, 0, 1), axis)
-			pivot = (cross((0, 0, 1), axis) if cos_angle == 0 else (1, 0, 0))
-			sticker.rotate(angle=acos(cos_angle), axis=pivot, origin=(0, 0, 0))
+			cos_angle = dot(vector(0, 0, 1), axis)
+			pivot = (cross(vector(0, 0, 1), axis) if cos_angle == 0 else vector(1, 0, 0))
+			sticker.rotate(angle=acos(cos_angle), axis=pivot, origin=vector(0, 0, 0))
 			stickers.append(sticker)
 
 # ６面转动方法
@@ -44,15 +44,14 @@ def rotate3D(key):
 			rate(fps)
 			for sticker in stickers:
 				if dot(sticker.pos, axis) > 0.5:
-					sticker.rotate(angle=angle / fps, axis=axis,
-								   origin=(0, 0, 0))
+					sticker.rotate(angle=angle / fps, axis=axis,origin=vector(0, 0, 0))
 	elif key[0] == 'E':
-		axis = (0, 0.5, 0)
+		axis = vector(0, 0.5, 0)
 		angle = ((pi / 2) if len(key)>1 else -pi / 2)
 		for r in arange(0, angle, angle / fps):
 			rate(fps)
 			for sticker in stickers:
-				sticker.rotate(angle=angle / fps, axis=axis,origin=(0, 0, 0))
+				sticker.rotate(angle=angle / fps, axis=axis,origin=vector(0, 0, 0))
 
 
 
@@ -114,7 +113,7 @@ def move(face, show=1):
 		dfr['f'], dfr['d'], dfr['r'], ufr['f'], ufr['u'], ufr['r'], ubr['b'], ubr['u'], ubr['r'], dbr['b'], dbr['d'], dbr['r']
 
 		ur['u'], ur['r'], br['b'], br['r'], dr['d'], dr['r'], fr['f'], fr['r'],  = \
-		fr['f'], fr['r'], ur['u'], ur['r'], br['b'], br['r'], dr['d'], dr['r'] #Edges
+		fr['f'], fr['r'], ur['u'], ur['r'], br['b'], br['r'], dr['d'], dr['r'] 
 		rotate3D("R")
 
 
@@ -224,7 +223,7 @@ def melanger(nbrDeMoves=25, show=1): #随机打乱方法
 
 	i=0
 	for i in range(nbrDeMoves):
-		aleatoire = random.randint(0,11)
+		aleatoire = randint(0,11)
 		move(moveList[aleatoire], 0)
 		if show == 1:
 			sys.stdout.write(str(moveList[aleatoire]).upper()+ " ")
@@ -995,7 +994,7 @@ solveWhiteCorner() # 白色角块
 printCube() 
 
 if isFinish(): 
-	print("Finished"  + str(moveNbr) + " movements !")
+	print("Finished "  + str(moveNbr) + " movements !")
 	quit()
 
 solve2ndCrown() # 第二层
@@ -1003,14 +1002,14 @@ solve2ndCrown() # 第二层
 printCube() 
 
 if isFinish(): 
-	print("Finished" + str(moveNbr) + " movements !")
+	print("Finished " + str(moveNbr) + " movements !")
 	quit()
 
 solveYellowCross() # 黄十字
 
 printCube() 
 if isFinish(): 
-	print("Finished" + str(moveNbr) + " movements !")
+	print("Finished " + str(moveNbr) + " movements !")
 	quit()
 
 solveFinal() # 最后一层
@@ -1018,7 +1017,7 @@ solveFinal() # 最后一层
 printCube() 
 
 if isFinish(): 
-	print("Finished" + str(moveNbr) + " movements !")
+	print("Finished " + str(moveNbr) + " movements !")
 	quit()
 
 printCube() 
